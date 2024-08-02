@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: "/api"
 })
 
-interface Region {
+export interface Region {
     id: string;
     name: string;
     currentPrice: number;
