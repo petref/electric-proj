@@ -1,14 +1,15 @@
-import Image from "next/image";
-import { Inter } from "next/font/google";
+import { useState } from "react"
+import { useQueries, useQuery } from "@tanstack/react-query"
 
-const inter = Inter({ subsets: ["latin"] });
+import ApiFacade from '../services/api';
 
-export default function Home() {
-  return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 ${inter.className}`}
-    >
-      
-    </main>
-  );
+
+export default function OverviewPage () {
+  const [ search, setSearch ] = useState(" ");
+
+  const { data, error, isLoading, isFetched } = useQuery(['regions'], ApiFacade.getRegionWithPrices, { cacheTime: 3000 });
+
+  return (<>
+  OverView
+  </>)
 }
