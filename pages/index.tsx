@@ -14,13 +14,14 @@ import ApiFacade from '../services/api';
 
 
 export default function OverviewPage() {
-  const [search, setSearch] = useState(" ");
+  const [search, setSearch] = useState("");
 
   const { data, error, isLoading, isFetched } = useQuery(['regions'], ApiFacade.getRegionWithPrices, { cacheTime: 3000 });
+  
   if (isLoading) return <Loader />
-  if (error) return <div>Error fetching data</div>;
+  if (error || !data) return <div>Error fetching data</div>;
 
-  const filteredRegions = data.regions.filter((region) =>
+  const filteredRegions = data.regions.filter((region:any) =>
     region.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -34,8 +35,8 @@ export default function OverviewPage() {
         />
       </div>
       <div className="h-screen my-5 overflow-y-scroll">
-        {filteredRegions.map((region) => (
-          <Link href={`/region/${region.id}`}>
+        {filteredRegions.map((region:any) => (
+          <Link key={region.id} href={`/region/${region.id}`}>
             <Card
               key={region.id}
               className={cn("m-4 p-5 border rounded overflow-hidden")}
