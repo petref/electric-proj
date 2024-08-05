@@ -1,10 +1,12 @@
 'use client'
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Chart from "chart.js/auto";
 import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../components/ui/tabs"
 import { CategoryScale } from "chart.js";
 import { Line } from 'react-chartjs-2';
+import RangePicker  from "../../components/ui/RangePicker" 
 
 import ApiFacade from '../../services/api/';
 import Loader from '../../components/loader';
@@ -12,9 +14,9 @@ import Loader from '../../components/loader';
 Chart.register(CategoryScale);
 
 const DetailPage = () => {
+  const [date,setDate] = useState(null);
   const router = useRouter();
   const { region: regionId } = router.query;
-  console.log(regionId)
   const { data, error, isLoading } = useQuery(
     ['regionData', regionId],
     () => ApiFacade.getRegionPrices(regionId as any ),
@@ -22,10 +24,9 @@ const DetailPage = () => {
   );
   const { data: regionsData, error: errorPublicPower, isLoading: isLoadingPublicPower } = useQuery(
     ['publicPower', regionId],
-    () => ApiFacade.getPublicPower(regionId as any),
+    () => ApiFacade.getPublicPower(regionId as any,),
     { enabled: !!regionId }
   );
-
 
   if (isLoading) return <Loader />;
   if (error) return <div><Loader />Error fetching data</div>;
@@ -50,15 +51,17 @@ const DetailPage = () => {
   return (
     <div className="p-4">
       <h1 className="text-2xl mb-4">Electricity Prices for {regionId}</h1>
-      <Tabs defaultValue="prices" className="w-[80vw]">
+     
+      <Tabs defaultValue="prices" className="w-[95vw]">
         <TabsList>
           <TabsTrigger value="prices">Current Prices</TabsTrigger>
           <TabsTrigger value="others">Daily Statistics</TabsTrigger>
           <TabsTrigger value="publicPower">Public Power</TabsTrigger>
         </TabsList>
         <TabsContent value="prices">
+           <RangePicker  handleChangeDate={setDate}/>
           <div>
-            <Line data={chartData(data?.unix_seconds, data?.price)} width={"500px"} height={"150px"} />
+            <Line data={chartData(data?.unix_seconds, data?.price)} />
           </div>
         </TabsContent>
         <TabsContent value="others">
@@ -75,7 +78,7 @@ const DetailPage = () => {
             {regionsData && (
               <div>
                 {regionsData.map((publicPowerData: any, index: number) => (
-                  <div key={`${publicPowerData}`} className='grid grid-cols-2 grid-flow-row gap-4 border rounded p-2'>
+                  <div key={`${publicPowerData}`} className='grid  md:grid-cols-1 lg:grid-cols-2 grid-flow-row gap-4 border rounded p-2'>
                     {publicPowerData.production_types.map((productionType:any) => (
                       <div key={productionType} className='my-5 border rounded p-5'>
                         <div>{`${productionType.name}`}</div>
